@@ -10,11 +10,6 @@ ACGCharacter::ACGCharacter()
 
 }
 
-void ACGCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
 void ACGCharacter::GiveDefaultAbilities()
 {
 	check(AbilitySystemComponent);
@@ -24,6 +19,22 @@ void ACGCharacter::GiveDefaultAbilities()
 	{
 		const FGameplayAbilitySpec AbilitySpec(AbilityClass, 1);
 		AbilitySystemComponent->GiveAbility(AbilitySpec);
+	}
+}
+
+void ACGCharacter::InitDefaultAttributes() const
+{
+
+	if (!AbilitySystemComponent || !DefaultAttributeEffect) return;
+
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+	EffectContext.AddSourceObject(this);
+
+	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributeEffect, 1.f, EffectContext);
+
+	if (SpecHandle.IsValid())
+	{
+		AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 	}
 }
 
@@ -37,6 +48,11 @@ void ACGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 UAbilitySystemComponent* ACGCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
+}
+
+UCGAttributeSet* ACGCharacter::GetAttributeSet() const
+{
+	return AttributeSet;
 }
 
 

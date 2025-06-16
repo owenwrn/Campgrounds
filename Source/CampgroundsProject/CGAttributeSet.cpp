@@ -3,12 +3,17 @@
 
 UCGAttributeSet::UCGAttributeSet()
 {
-	CurrentHealth = 100.f;
-	MaxHealth = 100.f;
-	CurrentStamina = 100.f;
-	MaxStamina = 100.f;
-	Attack = 10.f;
-	MovementSpeed = 500.f;
+
+}
+
+void UCGAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+{
+	Super::PreAttributeChange(Attribute, NewValue);
+}
+
+void UCGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
+{
+	Super::PostGameplayEffectExecute(Data);
 }
 
 void UCGAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

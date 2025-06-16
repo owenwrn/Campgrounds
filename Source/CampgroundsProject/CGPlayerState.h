@@ -8,6 +8,7 @@
 #include "CGPlayerState.generated.h"
 
 class UCGAbilitySystemComponent;
+class UCGAttributeSet;
 
 UCLASS()
 class CAMPGROUNDSPROJECT_API ACGPlayerState : public APlayerState, public IAbilitySystemInterface
@@ -21,9 +22,14 @@ public:
 	// GAS Interface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
+	virtual UCGAttributeSet* GetAttributeSet() const;
+
 protected:
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UCGAbilitySystemComponent> AbilitySystemComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
+	TObjectPtr<UCGAttributeSet> AttributeSet;
 	
 };

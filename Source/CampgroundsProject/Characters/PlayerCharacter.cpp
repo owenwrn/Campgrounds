@@ -20,6 +20,7 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 
 	InitAbilitySystemComponent();
 	GiveDefaultAbilities();
+	InitDefaultAttributes();
 }
 
 
@@ -28,6 +29,7 @@ void APlayerCharacter::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 
 	InitAbilitySystemComponent();
+	InitDefaultAttributes();
 }
 
 void APlayerCharacter::InitAbilitySystemComponent()
@@ -36,6 +38,7 @@ void APlayerCharacter::InitAbilitySystemComponent()
 	check(CGPlayerState);
 	AbilitySystemComponent = CastChecked<UCGAbilitySystemComponent>(CGPlayerState->GetAbilitySystemComponent());
 	AbilitySystemComponent->InitAbilityActorInfo(CGPlayerState, this);
+	AttributeSet = CGPlayerState->GetAttributeSet();
 }
 
 // Called to bind functionality to input

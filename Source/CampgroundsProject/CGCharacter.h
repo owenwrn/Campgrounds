@@ -9,7 +9,8 @@
 
 class UGameplayAbility;
 class UCGAbilitySystemComponent;
-//class UCGAttributeSet;
+class UCGAttributeSet;
+class UGameplayEffect;
 
 
 UCLASS()
@@ -22,25 +23,29 @@ public:
 	ACGCharacter();
 
 protected:
-	virtual void BeginPlay() override;
 
 	void GiveDefaultAbilities();
+
+	void InitDefaultAttributes() const;
 
 	// Attribute Set and ASC
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UCGAbilitySystemComponent> AbilitySystemComponent;
 
-	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
-	TObjectPtr<UCGAttributeSet> AttributeSet;*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
+	TObjectPtr<UCGAttributeSet> AttributeSet;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
+	TSubclassOf<UGameplayEffect> DefaultAttributeEffect;
 
 public:
 	// GAS Interface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-	//virtual UCGAttributeSet* GetAttributeSet() const;
+	virtual UCGAttributeSet* GetAttributeSet() const;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

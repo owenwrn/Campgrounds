@@ -19,6 +19,8 @@ class CAMPGROUNDSPROJECT_API UCGAttributeSet : public UAttributeSet
 
 public:
 	UCGAttributeSet();
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 
 	// Health
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_CurrentHealth)
