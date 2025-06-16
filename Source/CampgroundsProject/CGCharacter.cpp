@@ -1,5 +1,6 @@
 #include "CGCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "AbilitySystem/CGAbilitySystemComponent.h"
 #include "Net/UnrealNetwork.h"
 
 ACGCharacter::ACGCharacter()
@@ -7,29 +8,22 @@ ACGCharacter::ACGCharacter()
 	// Set this character to call Tick() every frame
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Create ASC and attribute set
-	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
-	AbilitySystemComponent->SetIsReplicated(true);
-	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
-
-	AttributeSet = CreateDefaultSubobject<UCGAttributeSet>(TEXT("AttributeSet"));
 }
 
 void ACGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// Optionally initialize attributes with a Gameplay Effect (GE) here
 }
 
-void ACGCharacter::Tick(float DeltaTime)
+void ACGCharacter::GiveDefaultAbilities()
 {
-	Super::Tick(DeltaTime);
+	check(AbilitySystemComponent);
+	if (!HasAuthority()) return;
 
-	// Optionally update movement speed from attribute
-	if (AttributeSet)
+	for (TSubclassOf<UGameplayAbility> AbilityClass : DefaultAbilities)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = GetMovementSpeed();
+		const FGameplayAbilitySpec AbilitySpec(AbilityClass, 1);
+		AbilitySystemComponent->GiveAbility(AbilitySpec);
 	}
 }
 
@@ -45,18 +39,4 @@ UAbilitySystemComponent* ACGCharacter::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
-float ACGCharacter::GetCurrentHealth() const
-{
-	return AttributeSet ? AttributeSet->GetCurrentHealth() : 0.f;
-}
-
-float ACGCharacter::GetMaxHealth() const
-{
-	return AttributeSet ? AttributeSet->GetMaxHealth() : 0.f;
-}
-
-float ACGCharacter::GetMovementSpeed() const
-{
-	return AttributeSet ? AttributeSet->GetMovementSpeed() : 600.f;
-}
 
