@@ -1,5 +1,6 @@
 #include "CGAttributeSet.h"
 #include "Net/UnrealNetwork.h"
+#include "GameplayEffectExtension.h"
 
 UCGAttributeSet::UCGAttributeSet()
 {
@@ -14,6 +15,19 @@ void UCGAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, fl
 void UCGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
+
+	// Clamp CurrentHealth
+	if (Data.EvaluatedData.Attribute == GetCurrentHealthAttribute())
+	{
+		float NewHealth = FMath::Clamp(GetCurrentHealth(), 0.0f, GetMaxHealth());
+		SetCurrentHealth(NewHealth);
+	}
+	// Clamp CurrentStamina
+	else if (Data.EvaluatedData.Attribute == GetCurrentStaminaAttribute())
+	{
+		float NewStamina = FMath::Clamp(GetCurrentStamina(), 0.0f, GetMaxStamina());
+		SetCurrentStamina(NewStamina);
+	}
 }
 
 void UCGAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -32,25 +46,21 @@ void UCGAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 void UCGAttributeSet::OnRep_CurrentHealth(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCGAttributeSet, CurrentHealth, OldValue);
-	CurrentHealth.SetCurrentValue(FMath::Clamp(CurrentHealth.GetCurrentValue(), 0.0f, MaxHealth.GetCurrentValue()));
 }
 
 void UCGAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCGAttributeSet, MaxHealth, OldValue);
-	CurrentHealth.SetCurrentValue(FMath::Clamp(CurrentHealth.GetCurrentValue(), 0.0f, MaxHealth.GetCurrentValue()));
 }
 
 void UCGAttributeSet::OnRep_CurrentStamina(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCGAttributeSet, CurrentStamina, OldValue);
-	CurrentStamina.SetCurrentValue(FMath::Clamp(CurrentStamina.GetCurrentValue(), 0.0f, MaxStamina.GetCurrentValue()));
 }
 
 void UCGAttributeSet::OnRep_MaxStamina(const FGameplayAttributeData& OldValue)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCGAttributeSet, MaxStamina, OldValue);
-	CurrentStamina.SetCurrentValue(FMath::Clamp(CurrentStamina.GetCurrentValue(), 0.0f, MaxStamina.GetCurrentValue()));
 }
 
 void UCGAttributeSet::OnRep_Attack(const FGameplayAttributeData& OldValue)

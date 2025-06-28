@@ -4,6 +4,7 @@
 #include "PlayerCharacter.h"
 #include "CampgroundsProject/AbilitySystem/CGAbilitySystemComponent.h"
 #include "CampgroundsProject/CGPlayerState.h"
+#include "CampgroundsProject/UI/CGHUD.h"
 
 
 // Sets default values
@@ -21,6 +22,8 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 	InitAbilitySystemComponent();
 	GiveDefaultAbilities();
 	InitDefaultAttributes();
+	AddStartUpEffects();
+	InitHUD();
 }
 
 
@@ -30,6 +33,8 @@ void APlayerCharacter::OnRep_PlayerState()
 
 	InitAbilitySystemComponent();
 	InitDefaultAttributes();
+	AddStartUpEffects();
+	InitHUD();
 }
 
 void APlayerCharacter::InitAbilitySystemComponent()
@@ -39,6 +44,17 @@ void APlayerCharacter::InitAbilitySystemComponent()
 	AbilitySystemComponent = CastChecked<UCGAbilitySystemComponent>(CGPlayerState->GetAbilitySystemComponent());
 	AbilitySystemComponent->InitAbilityActorInfo(CGPlayerState, this);
 	AttributeSet = CGPlayerState->GetAttributeSet();
+}
+
+void APlayerCharacter::InitHUD()
+{
+	if (const APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		if (ACGHUD* HUD = Cast<ACGHUD>(PlayerController->GetHUD()))
+		{
+			HUD->Init();
+		}
+	}
 }
 
 // Called to bind functionality to input

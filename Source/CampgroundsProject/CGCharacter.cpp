@@ -1,6 +1,7 @@
 #include "CGCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AbilitySystem/CGAbilitySystemComponent.h"
+#include "CGAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 
 ACGCharacter::ACGCharacter()
@@ -38,6 +39,24 @@ void ACGCharacter::InitDefaultAttributes() const
 	}
 }
 
+void ACGCharacter::AddStartUpEffects()
+{
+	check(AbilitySystemComponent);
+	if (!HasAuthority()) return;
+
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+	EffectContext.AddSourceObject(this);
+
+	for (TSubclassOf<UGameplayEffect> GameplayEffect : StartUpEffects)
+	{
+		FGameplayEffectSpecHandle NewHandle = AbilitySystemComponent->MakeOutgoingSpec(GameplayEffect, 1, EffectContext);
+		if (NewHandle.IsValid())
+		{
+			FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystemComponent.Get());
+		}
+	}
+}
+
 void ACGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -53,6 +72,36 @@ UAbilitySystemComponent* ACGCharacter::GetAbilitySystemComponent() const
 UCGAttributeSet* ACGCharacter::GetAttributeSet() const
 {
 	return AttributeSet;
+}
+
+bool ACGCharacter::IsAlive() const
+{
+	return GetCurrentHealth() > 0.0f;
+}
+
+float ACGCharacter::GetCurrentHealth() const
+{
+	return AttributeSet ? AttributeSet->GetCurrentHealth() : 0.f;
+}
+
+float ACGCharacter::GetMaxHealth() const
+{
+	return AttributeSet ? AttributeSet->GetMaxHealth() : 0.f;
+}
+
+float ACGCharacter::GetCurrentStamina() const
+{
+	return AttributeSet ? AttributeSet->GetCurrentStamina() : 0.f;
+}
+
+float ACGCharacter::GetMaxStamina() const
+{
+	return AttributeSet ? AttributeSet->GetMaxStamina() : 0.f;
+}
+
+float ACGCharacter::GetMovementSpeed() const
+{
+	return AttributeSet ? AttributeSet->GetMovementSpeed() : 600.f;
 }
 
 

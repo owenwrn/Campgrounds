@@ -1,0 +1,29 @@
+
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/HUD.h"
+#include "CGHUD.generated.h"
+
+class UPlayerHUDWidget;
+/**
+ * 
+ */
+UCLASS()
+class CAMPGROUNDSPROJECT_API ACGHUD : public AHUD
+{
+	GENERATED_BODY()
+
+public:
+	void Init();
+
+protected:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UI")
+	TSubclassOf<UPlayerHUDWidget> UIHUDWidgetClass;
+
+private:
+	UPROPERTY()
+	TObjectPtr<UPlayerHUDWidget> UIHUDWidget;
+		
+};
