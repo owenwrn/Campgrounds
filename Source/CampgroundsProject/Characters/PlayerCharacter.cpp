@@ -5,6 +5,7 @@
 #include "CampgroundsProject/AbilitySystem/CGAbilitySystemComponent.h"
 #include "CampgroundsProject/CGPlayerState.h"
 #include "CampgroundsProject/UI/CGHUD.h"
+#include "CampgroundsProject/CGGameMode.h"
 
 
 // Sets default values
@@ -13,11 +14,15 @@ APlayerCharacter::APlayerCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	DeadTag = FGameplayTag::RequestGameplayTag(FName("State.Dead"));
 }
 
 void APlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
+
+	// Forcibly set the DeadTag count to 0
+	AbilitySystemComponent->SetTagMapCount(DeadTag, 0);
 
 	InitAbilitySystemComponent();
 	GiveDefaultAbilities();
@@ -35,6 +40,21 @@ void APlayerCharacter::OnRep_PlayerState()
 	InitDefaultAttributes();
 	AddStartUpEffects();
 	InitHUD();
+}
+
+void APlayerCharacter::FinishDying()
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		ACGGameMode* GM = Cast<ACGGameMode>(GetWorld()->GetAuthGameMode());
+
+		if (GM)
+		{
+			GM->PlayerDied(GetController());
+		}
+	}
+
+	Super::FinishDying();
 }
 
 void APlayerCharacter::InitAbilitySystemComponent()

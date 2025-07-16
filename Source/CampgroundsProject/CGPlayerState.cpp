@@ -4,6 +4,7 @@
 #include "CGPlayerState.h"
 #include "AbilitySystem/CGAbilitySystemComponent.h"
 #include "CampgroundsProject/CGAttributeSet.h"
+#include "Characters/PlayerCharacter.h"
 
 
 // Sets default values
@@ -25,6 +26,33 @@ UAbilitySystemComponent* ACGPlayerState::GetAbilitySystemComponent() const
 UCGAttributeSet* ACGPlayerState::GetAttributeSet() const
 {
 	return AttributeSet;
+}
+
+void ACGPlayerState::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (AbilitySystemComponent)
+	{
+		// Attribute change callbacks
+		HealthChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetCurrentHealthAttribute()).AddUObject(this, &ACGPlayerState::HealthChanged);
+	}
+}
+
+void ACGPlayerState::HealthChanged(const FOnAttributeChangeData& Data)
+{
+	float Health = Data.NewValue;
+
+	APlayerCharacter* Player = Cast<APlayerCharacter>(GetPawn());
+	// If the player died, handle death
+	if (Health <= 0.0f && !AbilitySystemComponent->HasMatchingGameplayTag(DeadTag))
+	{
+		if (Player)
+		{
+			Player->Die();
+		}
+	}
+
 }
 
 

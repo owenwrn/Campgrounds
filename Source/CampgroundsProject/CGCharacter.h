@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "GameplayTagContainer.h"
 #include "CGCharacter.generated.h"
 
 class UGameplayAbility;
@@ -12,6 +13,7 @@ class UCGAbilitySystemComponent;
 class UCGAttributeSet;
 class UGameplayEffect;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterDiedDelegate, ACGCharacter*, Character);
 
 UCLASS()
 class CAMPGROUNDSPROJECT_API ACGCharacter : public ACharacter, public IAbilitySystemInterface
@@ -21,6 +23,17 @@ class CAMPGROUNDSPROJECT_API ACGCharacter : public ACharacter, public IAbilitySy
 public:
 	// Sets default values for this character's properties
 	ACGCharacter();
+
+	UPROPERTY(BlueprintAssignable)
+	FCharacterDiedDelegate OnCharacterDied;
+
+	// Removes all CharacterAbilities. Can only be called by the Server. Removing on the Server will remove from Client too.
+	virtual void RemoveCharacterAbilities();
+
+	virtual void Die();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void FinishDying();
 
 protected:
 
@@ -45,6 +58,13 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
 	TArray<TSubclassOf<UGameplayEffect>> StartUpEffects;
+
+	FGameplayTag DeadTag;
+	FGameplayTag EffectRemoveOnDeathTag;
+
+	// Death Animation
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GASDocumentation|Animation")
+	UAnimMontage* DeathMontage;
 
 public:
 	// GAS Interface

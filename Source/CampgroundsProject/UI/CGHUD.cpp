@@ -2,11 +2,11 @@
 
 
 #include "CGHUD.h"
-#include "CampgroundsProject/UI/PlayerHUDWidget.h"
+#include "Blueprint/UserWidget.h"
 
 void ACGHUD::Init()
 {
-	UIHUDWidget = CreateWidget<UPlayerHUDWidget>(GetOwningPlayerController(), UIHUDWidgetClass);
+	UIHUDWidget = CreateWidget<UUserWidget>(GetOwningPlayerController(), UIHUDWidgetClass);
 	UIHUDWidget->AddToViewport();
 }
 

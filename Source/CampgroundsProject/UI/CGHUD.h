@@ -20,10 +20,10 @@ public:
 
 protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UI")
-	TSubclassOf<UPlayerHUDWidget> UIHUDWidgetClass;
+	TSubclassOf<UUserWidget> UIHUDWidgetClass;
 
 private:
 	UPROPERTY()
-	TObjectPtr<UPlayerHUDWidget> UIHUDWidget;
+	TObjectPtr<UUserWidget> UIHUDWidget;
 		
 };

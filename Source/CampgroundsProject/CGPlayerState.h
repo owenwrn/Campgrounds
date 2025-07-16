@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
 #include "AbilitySystemInterface.h"
+#include "GameplayEffectTypes.h"
 #include "CGPlayerState.generated.h"
 
 class UCGAbilitySystemComponent;
@@ -32,4 +33,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UCGAttributeSet> AttributeSet;
 	
+	FGameplayTag DeadTag;
+
+	FDelegateHandle HealthChangedDelegateHandle;
+
+
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+	// Attribute changed callbacks
+	virtual void HealthChanged(const FOnAttributeChangeData& Data);
 };
