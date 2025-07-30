@@ -42,6 +42,12 @@ public:
     UPROPERTY(BlueprintAssignable)
     FMatchEndingTimeChangedDelegate OnMatchEndingTimeChanged;
 
+    UFUNCTION(NetMulticast, Reliable)
+    void Multicast_OnMatchEnding();
+
+    UFUNCTION(NetMulticast, Reliable)
+    void Multicast_OnMatchEnd();
+
     FTimerHandle MatchTimerHandle;
 
     UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, ReplicatedUsing = OnRep_MatchTime)
@@ -74,5 +80,8 @@ protected:
     virtual void BeginPlay() override;
 
     void StartMatchEndingTimer();
+
+    UFUNCTION(BlueprintImplementableEvent)
+    void HandleEndGame();
 
 };

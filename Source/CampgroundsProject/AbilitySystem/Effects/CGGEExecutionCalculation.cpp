@@ -62,7 +62,7 @@ void UCGGEExecutionCalculation::Execute_Implementation(const FGameplayEffectCust
 	{
 		DamageDone = 0.0f;
 	}
-
+	
 	// Final execution output. We can add more than one AddOutputModifier to change multiple parameters at a time based on more complicated calculations. Here we apply -DamageDone to to Health. Health itself is clamped in the AttributeSet.
 	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().CurrentHealthProperty, EGameplayModOp::Additive, -DamageDone));
 }

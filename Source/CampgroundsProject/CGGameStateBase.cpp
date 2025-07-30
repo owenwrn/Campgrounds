@@ -26,6 +26,16 @@ UEconomyAttributeSet* ACGGameStateBase::GetAttributeSet() const
 	return AttributeSet;
 }
 
+void ACGGameStateBase::Multicast_OnMatchEnding_Implementation()
+{
+	OnMatchEnding.Broadcast();
+}
+
+void ACGGameStateBase::Multicast_OnMatchEnd_Implementation()
+{
+	OnMatchEnd.Broadcast();
+}
+
 void ACGGameStateBase::OnRep_MatchTime()
 {
 	OnMatchTimeChanged.Broadcast(MatchTime);
@@ -41,6 +51,7 @@ void ACGGameStateBase::TickMatchTimer()
 			MatchTime = 0;
 			GetWorldTimerManager().ClearTimer(MatchTimerHandle);
 			StartMatchEndingTimer();
+			Multicast_OnMatchEnding();
 		}
 
 		ForceNetUpdate();
@@ -66,7 +77,8 @@ void ACGGameStateBase::TickMatchEndingTimer()
 		{
 			MatchTime = 0;
 			GetWorldTimerManager().ClearTimer(MatchEndingTimerHandle);
-			OnMatchEnd.Broadcast();
+			Multicast_OnMatchEnd();
+			HandleEndGame();
 		}
 
 		ForceNetUpdate();
@@ -92,9 +104,10 @@ void ACGGameStateBase::BeginPlay()
 
 	if (HasAuthority())
 	{
-		GetWorldTimerManager().SetTimer(MatchTimerHandle, this, &ACGGameStateBase::TickMatchTimer, 1.0f, true);
-		OnMatchStart.Broadcast();
+		GetWorldTimerManager().SetTimer(MatchTimerHandle, this, &ACGGameStateBase::TickMatchTimer, 1.0f, true);		
 	}
+
+	OnMatchStart.Broadcast();
 }
 
 void ACGGameStateBase::StartMatchEndingTimer()
@@ -102,7 +115,6 @@ void ACGGameStateBase::StartMatchEndingTimer()
 	if (HasAuthority())
 	{
 		GetWorldTimerManager().SetTimer(MatchEndingTimerHandle, this, &ACGGameStateBase::TickMatchEndingTimer, 1.0f, true);
-		OnMatchEnding.Broadcast();
 	}
 }
 

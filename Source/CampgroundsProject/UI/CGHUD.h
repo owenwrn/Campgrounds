@@ -18,6 +18,8 @@ class CAMPGROUNDSPROJECT_API ACGHUD : public AHUD
 public:
 	void Init();
 
+	UFUNCTION()
+	void DestroyPlayerHUD();
 protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UI")
 	TSubclassOf<UUserWidget> UIHUDWidgetClass;
