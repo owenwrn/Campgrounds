@@ -27,6 +27,9 @@ public:
 
     virtual UEconomyAttributeSet* GetAttributeSet() const;
 
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Day System")
+    int32 CurrentDay;
+
     UPROPERTY(BlueprintAssignable)
     FMatchStartDelegate OnMatchStart;
 

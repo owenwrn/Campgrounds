@@ -17,7 +17,12 @@ class CAMPGROUNDSPROJECT_API ACGGameMode : public AGameModeBase
 public:
 	ACGGameMode();
 
+	virtual void BeginPlay() override;
+
 	void PlayerDied(AController* Controller);
+
+	UFUNCTION()
+	void HandleDayEnd();
 
 protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)

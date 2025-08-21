@@ -76,6 +76,7 @@ void ACGGameStateBase::TickMatchEndingTimer()
 		if (MatchEndingTime <= 0)
 		{
 			MatchTime = 0;
+			CurrentDay++;
 			GetWorldTimerManager().ClearTimer(MatchEndingTimerHandle);
 			Multicast_OnMatchEnd();
 			HandleEndGame();
