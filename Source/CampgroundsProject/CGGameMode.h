@@ -24,6 +24,9 @@ public:
 	UFUNCTION()
 	void HandleDayEnd();
 
+	UFUNCTION(BlueprintCallable)
+	void HandleNextDay();
+
 protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	float RespawnDelay;

@@ -2,30 +2,44 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameState.h"
-#include "AbilitySystemInterface.h"
 #include "CGGameStateBase.generated.h"
-
-class UCGAbilitySystemComponent;
-class UEconomyAttributeSet;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMatchStartDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMatchEndingDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMatchEndDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMatchTimeChangedDelegate, int32, time);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMatchEndingTimeChangedDelegate, int32, time);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnNextDayDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMoneyChangedDelegate, int32, value);
 
 UCLASS()
-class CAMPGROUNDSPROJECT_API ACGGameStateBase : public AGameStateBase, public IAbilitySystemInterface
+class CAMPGROUNDSPROJECT_API ACGGameStateBase : public AGameStateBase
 {
     GENERATED_BODY()
 
 public:
     ACGGameStateBase();
 
-    //GAS Interface
-    virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+    UPROPERTY(ReplicatedUsing = OnRep_money, BlueprintReadOnly, Category = "Currency")
+    int32 Money;
 
-    virtual UEconomyAttributeSet* GetAttributeSet() const;
+    UPROPERTY(BlueprintAssignable, Category = "Currency")
+    FOnMoneyChangedDelegate OnMoneyChanged;
+
+    UFUNCTION(Server, Reliable)
+    void Server_AddMoney(int32 amount);
+
+    UFUNCTION(Server, Reliable)
+    void Server_SpendMoney(int32 amount);
+
+    UFUNCTION()
+    void OnRep_Money();
+
+    UPROPERTY(BlueprintAssignable, Category = "Day System")
+    FOnNextDayDelegate OnNextDay;
+
+    UFUNCTION(NetMulticast, Reliable)
+    void Multicast_NextDay();
 
     UPROPERTY(Replicated, BlueprintReadOnly, Category = "Day System")
     int32 CurrentDay;
@@ -53,8 +67,11 @@ public:
 
     FTimerHandle MatchTimerHandle;
 
-    UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, ReplicatedUsing = OnRep_MatchTime)
-    int32 MatchTime = 300;
+    UPROPERTY(ReplicatedUsing = OnRep_MatchTime)
+    int32 MatchTime;
+
+    UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+    int32 InitialMatchTime = 300;
 
     UFUNCTION()
     void OnRep_MatchTime();
@@ -63,8 +80,11 @@ public:
 
     FTimerHandle MatchEndingTimerHandle;
 
-    UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, ReplicatedUsing = OnRep_MatchEndingTime)
-    int32 MatchEndingTime = 30;
+    UPROPERTY(ReplicatedUsing = OnRep_MatchEndingTime)
+    int32 MatchEndingTime;
+
+    UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+    int32 IntialMatchEndingTime = 30;
 
     UFUNCTION()
     void OnRep_MatchEndingTime();
@@ -73,12 +93,9 @@ public:
 
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-protected:
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
-    TObjectPtr<UCGAbilitySystemComponent> AbilitySystemComponent;
+    void StartMatchTimer();
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
-    TObjectPtr<UEconomyAttributeSet> AttributeSet;
+protected:
 
     virtual void BeginPlay() override;
 

@@ -3,27 +3,43 @@
 
 #include "CGGameStateBase.h"
 #include "AbilitySystem/CGAbilitySystemComponent.h"
-#include "CampgroundsProject/AbilitySystem/AttributeSets/EconomyAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 #include <Kismet/GameplayStatics.h>
 #include "UI/CGHUD.h"
 
 ACGGameStateBase::ACGGameStateBase()
 {
-	AbilitySystemComponent = CreateDefaultSubobject<UCGAbilitySystemComponent>("AbilitySystemComponent");
-	AbilitySystemComponent->SetIsReplicated(true);
-	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
-	AttributeSet = CreateDefaultSubobject<UEconomyAttributeSet>("AttributeSet");
+	Money = 0;
 }
 
-UAbilitySystemComponent* ACGGameStateBase::GetAbilitySystemComponent() const
+void ACGGameStateBase::Server_AddMoney(int32 amount)
 {
-	return AbilitySystemComponent;
+	if (amount <= 0) return;
+
+	Money += amount;
+
+	OnMoneyChanged.Broadcast(Money);
 }
 
-UEconomyAttributeSet* ACGGameStateBase::GetAttributeSet() const
+void ACGGameStateBase::Server_SpendMoney(int32 amount)
 {
-	return AttributeSet;
+	if (amount <= 0) return; 
+
+	if (Money < amount) return; // Not enough money
+
+	Money -= amount;
+
+	OnMoneyChanged.Broadcast(Money);
+}
+
+void ACGGameStateBase::OnRep_Money()
+{
+	OnMoneyChanged.Broadcast(Money);
+}
+
+void ACGGameStateBase::Multicast_NextDay_Implementation()
+{
+	OnNextDay.Broadcast();
 }
 
 void ACGGameStateBase::Multicast_OnMatchEnding_Implementation()
@@ -97,25 +113,38 @@ void ACGGameStateBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 	DOREPLIFETIME_CONDITION_NOTIFY(ACGGameStateBase, MatchTime, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ACGGameStateBase, MatchEndingTime, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME(ACGGameStateBase, Money);
 }
 
 void ACGGameStateBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	StartMatchTimer();
+}
+
+void ACGGameStateBase::StartMatchTimer()
+{
 	if (HasAuthority())
 	{
-		GetWorldTimerManager().SetTimer(MatchTimerHandle, this, &ACGGameStateBase::TickMatchTimer, 1.0f, true);		
+		MatchTime = InitialMatchTime;
+
+		GetWorldTimerManager().SetTimer(MatchTimerHandle, this, &ACGGameStateBase::TickMatchTimer, 1.0f, true);
 	}
 
 	OnMatchStart.Broadcast();
+	OnMatchTimeChanged.Broadcast(InitialMatchTime);
 }
 
 void ACGGameStateBase::StartMatchEndingTimer()
 {
 	if (HasAuthority())
 	{
+		MatchEndingTime = IntialMatchEndingTime;
+
 		GetWorldTimerManager().SetTimer(MatchEndingTimerHandle, this, &ACGGameStateBase::TickMatchEndingTimer, 1.0f, true);
 	}
+
+	OnMatchEndingTimeChanged.Broadcast(IntialMatchEndingTime);
 }
 

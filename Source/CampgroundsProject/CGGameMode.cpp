@@ -41,8 +41,19 @@ void ACGGameMode::PlayerDied(AController* Controller)
 
 void ACGGameMode::HandleDayEnd()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Day has ended! Respawning players..."));
+	UE_LOG(LogTemp, Warning, TEXT("Day has ended!"));
 	
+	
+}
+
+void ACGGameMode::HandleNextDay()
+{
+	if (ACGGameStateBase* GS = GetGameState<ACGGameStateBase>())
+	{
+		GS->Multicast_NextDay();
+		GS->StartMatchTimer();
+	}
+
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
 		APlayerController* PC = It->Get();
@@ -51,6 +62,7 @@ void ACGGameMode::HandleDayEnd()
 			ACGPlayerState* PS = PC->GetPlayerState<ACGPlayerState>();
 			if (PS)
 			{
+				RespawnDelay = 0.5f;
 				UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
 				if (ASC)
 				{
@@ -59,7 +71,7 @@ void ACGGameMode::HandleDayEnd()
 						UCGAttributeSet::GetCurrentHealthAttribute(),
 						EGameplayModOp::Override,
 						0.0f
-					);
+					);					
 				}
 			}
 		}
