@@ -26,10 +26,10 @@ public:
     UPROPERTY(BlueprintAssignable, Category = "Currency")
     FOnMoneyChangedDelegate OnMoneyChanged;
 
-    UFUNCTION(Server, Reliable)
+    UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Currency")
     void Server_AddMoney(int32 amount);
 
-    UFUNCTION(Server, Reliable)
+    UFUNCTION(Server, Reliable, BlueprintCallable, Category="Currency")
     void Server_SpendMoney(int32 amount);
 
     UFUNCTION()

@@ -12,7 +12,7 @@ ACGGameStateBase::ACGGameStateBase()
 	Money = 0;
 }
 
-void ACGGameStateBase::Server_AddMoney(int32 amount)
+void ACGGameStateBase::Server_AddMoney_Implementation(int32 amount)
 {
 	if (amount <= 0) return;
 
@@ -21,7 +21,7 @@ void ACGGameStateBase::Server_AddMoney(int32 amount)
 	OnMoneyChanged.Broadcast(Money);
 }
 
-void ACGGameStateBase::Server_SpendMoney(int32 amount)
+void ACGGameStateBase::Server_SpendMoney_Implementation(int32 amount)
 {
 	if (amount <= 0) return; 
 
