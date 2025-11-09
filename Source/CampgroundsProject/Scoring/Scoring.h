@@ -30,16 +30,6 @@ enum class EShape : uint8
     Unique
 };
 
-UENUM(BlueprintType)
-enum class ERarity : uint8
-{
-    Common,
-    Uncommon,
-    Rare,
-    Epic,
-    Exotic
-};
-
 USTRUCT(BlueprintType)
 struct CAMPGROUNDSPROJECT_API FScoring
 {
@@ -54,8 +44,6 @@ struct CAMPGROUNDSPROJECT_API FScoring
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     EShape Shape = EShape::Round;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    ERarity Rarity = ERarity::Common;
 };
 
 USTRUCT(BlueprintType)
